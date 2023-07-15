@@ -25,6 +25,7 @@ import HTTP_STATUS from "http-status-codes";
 
 // errorhandler
 import "express-async-errors";
+import { config } from "./config";
 
 const SERVER_PORT = 5000;
 
@@ -51,7 +52,7 @@ export class ChattyServer {
     // cors
     app.use(
       cors({
-        origin: "*",
+        origin: config.CLIENT_URL,
         credentials: true,
         optionsSuccessStatus: 200,
         methods: ["GET", "POST", "PUT", "DELETE"],
@@ -64,9 +65,9 @@ export class ChattyServer {
     app.use(
       cookieSession({
         name: "session",
-        keys: ["test1", "test2"],
+        keys: [config.SECRET_KEY_ONE!, config.SECRET_KEY_TWO!],
         maxAge: 24 * 7 * 3600000, // 7 days
-        secure: false,
+        secure: config.NODE_ENV !== "development",
       })
     );
 

@@ -1,9 +1,10 @@
 import mongoose from "mongoose";
+import { config } from "./config";
 
 export default () => {
   const connect = () => {
     mongoose
-      .connect("mongodb://127.0.0.1:27017/chatty-db")
+      .connect(config.DATABASE_URI!)
       .then(() => {
         console.log("Successfully connected to the database");
       })
