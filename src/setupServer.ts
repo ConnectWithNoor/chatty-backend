@@ -8,7 +8,7 @@ import {
 } from "express";
 
 import http from "http";
-import { Server as SocketIOServer } from "socket.io";
+import { Socket, Server as SocketIOServer } from "socket.io";
 import { createClient } from "redis";
 import { createAdapter } from "@socket.io/redis-adapter";
 
@@ -55,7 +55,7 @@ export class ChattyServer {
         origin: config.CLIENT_URL,
         credentials: true,
         optionsSuccessStatus: 200,
-        methods: ["GET", "POST", "PUT", "DELETE"],
+        methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
       })
     );
   }
@@ -91,17 +91,40 @@ export class ChattyServer {
   private async startServer(app: Application): Promise<void> {
     try {
       const server: http.Server = new http.Server(app);
+      const socketServer: SocketIOServer = await this.createSocketsIO(server);
+      this.SocketIOConnections(socketServer);
       this.startHttpServer(server);
     } catch (error) {
       console.log(error);
     }
   }
 
-  private createSocketsIO(httpServer: http.Server): void {}
+  private async createSocketsIO(
+    httpServer: http.Server
+  ): Promise<SocketIOServer> {
+    const io: SocketIOServer = new SocketIOServer(httpServer, {
+      cors: {
+        origin: config.CLIENT_URL,
+        credentials: true,
+        optionsSuccessStatus: 200,
+        methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+      },
+    });
+
+    const pubClient = createClient({ url: config.REDIS_HOST });
+    const subClient = pubClient.duplicate();
+
+    await Promise.all([pubClient.connect(), subClient.connect()]);
+    io.adapter(createAdapter(pubClient, subClient));
+    return io;
+  }
 
   private startHttpServer(httpServer: http.Server): void {
     httpServer.listen(SERVER_PORT, () => {
-      console.log(`Server started on port ${SERVER_PORT}`);
+      console.log(`server started on port ${SERVER_PORT}`);
+      console.log(`server started on process ${process.pid}`);
     });
   }
+
+  private SocketIOConnections(socketServer: SocketIOServer): void {}
 }
