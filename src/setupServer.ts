@@ -34,6 +34,7 @@ import "express-async-errors";
 import { config } from "./config";
 
 const SERVER_PORT = 5000;
+const log = config.createLogger("setupServer");
 
 export class ChattyServer {
   private app: Application;
@@ -108,7 +109,7 @@ export class ChattyServer {
         res: Response,
         next: NextFunction
       ): void => {
-        console.log(error);
+        log.error(error);
 
         if (error instanceof CustomError) {
           res.status(error.statusCode).json(error.serializeErrors());
@@ -126,7 +127,7 @@ export class ChattyServer {
       this.SocketIOConnections(socketServer);
       this.startHttpServer(server);
     } catch (error) {
-      console.log(error);
+      log.error(error);
     }
   }
 
@@ -152,8 +153,8 @@ export class ChattyServer {
 
   private startHttpServer(httpServer: http.Server): void {
     httpServer.listen(SERVER_PORT, () => {
-      console.log(`server started on port ${SERVER_PORT}`);
-      console.log(`server started on process ${process.pid}`);
+      log.info(`server started on port ${SERVER_PORT}`);
+      log.info(`server started on process ${process.pid}`);
     });
   }
 

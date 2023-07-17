@@ -1,15 +1,17 @@
 import mongoose from "mongoose";
 import { config } from "./config";
 
+const log = config.createLogger("setupDatabase");
+
 export default () => {
   const connect = () => {
     mongoose
       .connect(config.DATABASE_URI!)
       .then(() => {
-        console.log("Successfully connected to the database");
+        log.info("Successfully connected to the database");
       })
       .catch((error) => {
-        console.log(`Error connecting database: ${error}`);
+        log.error(`Error connecting database: ${error}`);
         return process.exit(1);
       });
   };
@@ -17,7 +19,7 @@ export default () => {
   connect();
 
   mongoose.connection.on("disconnected", () => {
-    console.log("Database connection retrying");
+    log.info("Database connection retrying");
     connect();
   });
 };

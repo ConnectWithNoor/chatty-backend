@@ -1,3 +1,5 @@
+import bunyan from "bunyan";
+
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -33,6 +35,13 @@ class Config {
         throw new Error(`Configuration ${key} is undefined`);
       }
     }
+  }
+
+  public createLogger(loggerName: string): bunyan {
+    return bunyan.createLogger({
+      name: loggerName,
+      level: "debug",
+    });
   }
 }
 
