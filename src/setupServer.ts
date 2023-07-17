@@ -11,6 +11,7 @@ import http from "http";
 import { Socket, Server as SocketIOServer } from "socket.io";
 import { createClient } from "redis";
 import { createAdapter } from "@socket.io/redis-adapter";
+import applicationRoutes from "./routes";
 
 // security
 import cors from "cors";
@@ -84,7 +85,9 @@ export class ChattyServer {
     app.use(urlencoded({ extended: true, limit: "50mb" }));
   }
 
-  private routesMiddleware(app: Application): void {}
+  private routesMiddleware(app: Application): void {
+    applicationRoutes(app);
+  }
 
   private globalHandler(app: Application): void {}
 
