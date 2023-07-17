@@ -1,4 +1,8 @@
 import {
+  CustomError,
+  IErrorResponse,
+} from "./shared/globals/helpers/error-handler";
+import {
   Application,
   json,
   urlencoded,
@@ -10,7 +14,10 @@ import {
 import http from "http";
 import { Socket, Server as SocketIOServer } from "socket.io";
 import { createClient } from "redis";
+import HTTP_STATUS from "http-status-codes";
 import { createAdapter } from "@socket.io/redis-adapter";
+
+import { NotFoundError } from "@global/helpers/error-handler";
 import applicationRoutes from "./routes";
 
 // security
@@ -21,8 +28,6 @@ import hpp from "hpp";
 // standard
 import cookieSession from "cookie-session";
 import compression from "compression";
-import cookieParser from "cookie-parser";
-import HTTP_STATUS from "http-status-codes";
 
 // errorhandler
 import "express-async-errors";
@@ -41,7 +46,7 @@ export class ChattyServer {
     this.securityMiddleware(this.app);
     this.standardMiddleware(this.app);
     this.routesMiddleware(this.app);
-    this.globalHandler(this.app);
+    this.globalErrorHandler(this.app);
     this.startServer(this.app);
   }
 
@@ -89,7 +94,30 @@ export class ChattyServer {
     applicationRoutes(app);
   }
 
-  private globalHandler(app: Application): void {}
+  private globalErrorHandler(app: Application): void {
+    app.all("*", (req: Request, res: Response) => {
+      res
+        .status(HTTP_STATUS.NOT_FOUND)
+        .json({ message: `${req.originalUrl} not found` });
+    });
+
+    app.use(
+      (
+        error: IErrorResponse,
+        _req: Request,
+        res: Response,
+        next: NextFunction
+      ): void => {
+        console.log(error);
+
+        if (error instanceof CustomError) {
+          res.status(error.statusCode).json(error.serializeErrors());
+        }
+
+        next();
+      }
+    );
+  }
 
   private async startServer(app: Application): Promise<void> {
     try {
