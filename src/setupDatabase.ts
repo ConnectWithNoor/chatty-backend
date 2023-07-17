@@ -1,14 +1,14 @@
-import mongoose from "mongoose";
-import { config } from "./config";
+import mongoose from 'mongoose';
+import { config } from './config';
 
-const log = config.createLogger("setupDatabase");
+const log = config.createLogger('setupDatabase');
 
 export default () => {
   const connect = () => {
     mongoose
       .connect(config.DATABASE_URI!)
       .then(() => {
-        log.info("Successfully connected to the database");
+        log.info('Successfully connected to the database');
       })
       .catch((error) => {
         log.error(`Error connecting database: ${error}`);
@@ -18,8 +18,8 @@ export default () => {
 
   connect();
 
-  mongoose.connection.on("disconnected", () => {
-    log.info("Database connection retrying");
+  mongoose.connection.on('disconnected', () => {
+    log.info('Database connection retrying');
     connect();
   });
 };

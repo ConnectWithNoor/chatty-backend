@@ -1,40 +1,30 @@
-import {
-  CustomError,
-  IErrorResponse,
-} from "./shared/globals/helpers/error-handler";
-import {
-  Application,
-  json,
-  urlencoded,
-  Response,
-  Request,
-  NextFunction,
-} from "express";
+import { CustomError, IErrorResponse } from './shared/globals/helpers/error-handler';
+import { Application, json, urlencoded, Response, Request, NextFunction } from 'express';
 
-import http from "http";
-import { Socket, Server as SocketIOServer } from "socket.io";
-import { createClient } from "redis";
-import HTTP_STATUS from "http-status-codes";
-import { createAdapter } from "@socket.io/redis-adapter";
+import http from 'http';
+import { Socket, Server as SocketIOServer } from 'socket.io';
+import { createClient } from 'redis';
+import HTTP_STATUS from 'http-status-codes';
+import { createAdapter } from '@socket.io/redis-adapter';
 
-import { NotFoundError } from "@global/helpers/error-handler";
-import applicationRoutes from "./routes";
+import { NotFoundError } from '@global/helpers/error-handler';
+import applicationRoutes from './routes';
 
 // security
-import cors from "cors";
-import helmet from "helmet";
-import hpp from "hpp";
+import cors from 'cors';
+import helmet from 'helmet';
+import hpp from 'hpp';
 
 // standard
-import cookieSession from "cookie-session";
-import compression from "compression";
+import cookieSession from 'cookie-session';
+import compression from 'compression';
 
 // errorhandler
-import "express-async-errors";
-import { config } from "./config";
+import 'express-async-errors';
+import { config } from './config';
 
 const SERVER_PORT = 5000;
-const log = config.createLogger("setupServer");
+const log = config.createLogger('setupServer');
 
 export class ChattyServer {
   private app: Application;
@@ -62,7 +52,7 @@ export class ChattyServer {
         origin: config.CLIENT_URL,
         credentials: true,
         optionsSuccessStatus: 200,
-        methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+        methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
       })
     );
   }
@@ -71,10 +61,10 @@ export class ChattyServer {
     // cookies
     app.use(
       cookieSession({
-        name: "session",
+        name: 'session',
         keys: [config.SECRET_KEY_ONE!, config.SECRET_KEY_TWO!],
         maxAge: 24 * 7 * 3600000, // 7 days
-        secure: config.NODE_ENV !== "development",
+        secure: config.NODE_ENV !== 'development'
       })
     );
 
@@ -84,11 +74,11 @@ export class ChattyServer {
     // json-parser
     app.use(
       json({
-        limit: "50mb",
+        limit: '50mb'
       })
     );
     // urlencoded
-    app.use(urlencoded({ extended: true, limit: "50mb" }));
+    app.use(urlencoded({ extended: true, limit: '50mb' }));
   }
 
   private routesMiddleware(app: Application): void {
@@ -96,28 +86,19 @@ export class ChattyServer {
   }
 
   private globalErrorHandler(app: Application): void {
-    app.all("*", (req: Request, res: Response) => {
-      res
-        .status(HTTP_STATUS.NOT_FOUND)
-        .json({ message: `${req.originalUrl} not found` });
+    app.all('*', (req: Request, res: Response) => {
+      res.status(HTTP_STATUS.NOT_FOUND).json({ message: `${req.originalUrl} not found` });
     });
 
-    app.use(
-      (
-        error: IErrorResponse,
-        _req: Request,
-        res: Response,
-        next: NextFunction
-      ): void => {
-        log.error(error);
+    app.use((error: IErrorResponse, _req: Request, res: Response, next: NextFunction): void => {
+      log.error(error);
 
-        if (error instanceof CustomError) {
-          res.status(error.statusCode).json(error.serializeErrors());
-        }
-
-        next();
+      if (error instanceof CustomError) {
+        res.status(error.statusCode).json(error.serializeErrors());
       }
-    );
+
+      next();
+    });
   }
 
   private async startServer(app: Application): Promise<void> {
@@ -131,16 +112,14 @@ export class ChattyServer {
     }
   }
 
-  private async createSocketsIO(
-    httpServer: http.Server
-  ): Promise<SocketIOServer> {
+  private async createSocketsIO(httpServer: http.Server): Promise<SocketIOServer> {
     const io: SocketIOServer = new SocketIOServer(httpServer, {
       cors: {
         origin: config.CLIENT_URL,
         credentials: true,
         optionsSuccessStatus: 200,
-        methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-      },
+        methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
+      }
     });
 
     const pubClient = createClient({ url: config.REDIS_HOST });

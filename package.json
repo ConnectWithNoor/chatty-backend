@@ -4,7 +4,11 @@
   "description": "Chatty application backend",
   "main": "app.js",
   "scripts": {
-    "dev": "nodemon -r tsconfig-paths/register src/app.ts"
+    "dev": "nodemon -r tsconfig-paths/register src/app.ts | bunyan",
+    "lint:check": "eslint \"src/**/*.ts\"",
+    "lint:fix": "eslint \"src/**/*.ts\" --fix",
+    "prettier:check": "prettier --check \"src/**/*.{ts,json}\"",
+    "prettier:fix": "prettier --write \"src/**/*.{ts,json}\""
   },
   "keywords": [
     "chatty",

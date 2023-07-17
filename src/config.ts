@@ -1,6 +1,6 @@
-import bunyan from "bunyan";
+import bunyan from 'bunyan';
 
-import dotenv from "dotenv";
+import dotenv from 'dotenv';
 
 dotenv.config();
 
@@ -40,7 +40,7 @@ class Config {
   public createLogger(loggerName: string): bunyan {
     return bunyan.createLogger({
       name: loggerName,
-      level: "debug",
+      level: 'debug'
     });
   }
 }
