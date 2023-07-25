@@ -1,14 +1,12 @@
 import { CustomError, IErrorResponse } from './shared/globals/helpers/error-handler';
 import { Application, json, urlencoded, Response, Request, NextFunction } from 'express';
-
 import http from 'http';
 import { Socket, Server as SocketIOServer } from 'socket.io';
 import { createClient } from 'redis';
 import HTTP_STATUS from 'http-status-codes';
 import { createAdapter } from '@socket.io/redis-adapter';
 
-import { NotFoundError } from '@global/helpers/error-handler';
-import applicationRoutes from './routes';
+import applicationRoutes from '@root/routes';
 
 // security
 import cors from 'cors';
@@ -138,6 +136,6 @@ export class ChattyServer {
   }
 
   private SocketIOConnections(socketServer: SocketIOServer): void {
-    log.info('Todo');
+    // todo
   }
 }
