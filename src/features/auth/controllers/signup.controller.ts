@@ -28,7 +28,7 @@ class Signup {
 
     const authData: IAuthDocument = Signup.prototype.signupData({ _id: authId, uId, username, email, password, avatarColor });
 
-    const result = (await uploads(avatarImage, `${userId}`, true, true)) as UploadApiResponse;
+    const result = (await uploads(avatarImage, 'chatty-images', `${userId}`, true, true)) as UploadApiResponse;
 
     if (!result?.public_id) {
       throw new BadRequestError('File upload: Error occured. Try again');
