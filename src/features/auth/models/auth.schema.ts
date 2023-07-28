@@ -2,8 +2,7 @@ import { compare, hash } from 'bcrypt';
 import mongoose, { Schema, model } from 'mongoose';
 
 import { IAuthDocument } from '@auth/interfaces/auth.interface';
-
-const SALT_ROUND = 10;
+import { SALT_ROUND } from '@global/constants/constants';
 
 const authSchema = new Schema<IAuthDocument>(
   {

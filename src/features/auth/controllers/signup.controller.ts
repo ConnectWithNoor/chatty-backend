@@ -1,3 +1,4 @@
+import HTTP_STATUS from 'http-status-codes';
 import { UploadApiResponse } from 'cloudinary';
 import { Request, Response } from 'express';
 import { ObjectId } from 'mongodb';
@@ -5,7 +6,7 @@ import { ObjectId } from 'mongodb';
 import { IAuthDocument, ISignUpData } from '@auth/interfaces/auth.interface';
 import { signupValidation } from '@auth/validations/signup.validation';
 
-import { JoiValidation } from '@global/decorators/joi-validation.decorators';
+import { JoiValidation } from '@decorators/joi-validation.decorators';
 import { BadRequestError } from '@global/helpers/error-handler';
 import { Helpers } from '@global/helpers/helpers';
 import { uploads } from '@global/helpers/cloudinary-upload';
@@ -32,6 +33,8 @@ class Signup {
     if (!result?.public_id) {
       throw new BadRequestError('File upload: Error occured. Try again');
     }
+
+    res.status(HTTP_STATUS.CREATED).json({ message: 'User created succesfully', authData });
   }
 
   private signupData(data: ISignUpData): IAuthDocument {
