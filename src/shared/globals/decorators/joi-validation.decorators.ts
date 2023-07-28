@@ -1,6 +1,7 @@
 import { ObjectSchema } from 'joi';
-import { JoiRequestValidationError } from '@global/helpers/error-handler';
 import { Request, Response, NextFunction } from 'express';
+
+import { JoiRequestValidationError } from '@global/helpers/error-handler';
 
 type IJoiDecorator<T> = (target: T, key: string, descriptor: PropertyDescriptor) => void;
 

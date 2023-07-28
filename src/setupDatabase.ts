@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+
 import { config } from '@root/config';
 
 const log = config.createLogger('setupDatabase');
