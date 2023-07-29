@@ -26,4 +26,10 @@ function uploads(
   });
 }
 
-export { uploads };
+function fetch(folderName: string, public_id: string, version: number) {
+  return cloudinary.v2.url(`${folderName}/${public_id}`, {
+    version
+  });
+}
+
+export { uploads, fetch };
