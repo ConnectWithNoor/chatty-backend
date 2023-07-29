@@ -91,7 +91,7 @@ class UserCache extends BaseCache {
 
     try {
       if (!this.client.isOpen) {
-        await redisConnection.connect();
+        await this.client.connect();
       }
 
       await this.client.ZADD('user', { score: parseInt(userUId, 10), value: `${key}` });
