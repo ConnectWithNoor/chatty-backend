@@ -3,7 +3,7 @@ import { BaseQueue } from './base.queue';
 import { IAuthJob } from '@auth/interfaces/auth.interface';
 
 import { ADD_AUTH_USER_TO_DB } from '@global/constants/constants';
-import { authWorker } from '@worker/auth.woker';
+import { authWorker } from '@worker/auth.worker';
 
 class AuthQueue extends BaseQueue {
   constructor() {

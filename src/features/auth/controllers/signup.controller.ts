@@ -56,7 +56,7 @@ class Signup {
     // add to auth and user queue to insert in database
     // omiting the unwanted keys
     const omitteduserData = omit(userDataForCache, ['uId', 'username', 'email', 'password', 'avatarColor']);
-    authQueue.addAuthUserJob(ADD_AUTH_USER_TO_DB, { value: omitteduserData });
+    authQueue.addAuthUserJob(ADD_AUTH_USER_TO_DB, { value: authData });
     userQueue.addUserJob(ADD_USER_TO_DB, { value: omitteduserData });
 
     // JWT Token

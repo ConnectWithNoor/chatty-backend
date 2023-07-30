@@ -1,5 +1,5 @@
 import { compare, hash } from 'bcrypt';
-import mongoose, { Schema, model } from 'mongoose';
+import mongoose, { CallbackWithoutResultAndOptionalError, Schema, model } from 'mongoose';
 
 import { IAuthDocument } from '@auth/interfaces/auth.interface';
 import { SALT_ROUND } from '@global/constants/constants';
@@ -27,7 +27,7 @@ const authSchema = new Schema<IAuthDocument>(
   }
 );
 
-authSchema.pre('save', async function (this: IAuthDocument, next) {
+authSchema.pre('save', async function (this: IAuthDocument, next: CallbackWithoutResultAndOptionalError) {
   const hashedPassword = await hash(this.password!, SALT_ROUND);
   this.password = hashedPassword;
   next();
