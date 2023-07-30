@@ -3,6 +3,7 @@ import { UploadApiResponse } from 'cloudinary';
 import { Request, Response } from 'express';
 import { ObjectId } from 'mongodb';
 import { omit } from 'lodash';
+import JWT from 'jsonwebtoken';
 
 import { IAuthDocument, ISignUpData } from '@auth/interfaces/auth.interface';
 import { signupValidation } from '@auth/validations/signup.validation';
@@ -17,9 +18,11 @@ import { ADD_AUTH_USER_TO_DB, ADD_USER_TO_DB } from '@global/constants/constants
 import { authService } from '@services/db/auth.service';
 import { UserCache } from '@services/redis/user.cache';
 import { authQueue } from '@services/queues/auth.queue';
+import { userQueue } from '@services/queues/user.queue';
 
 import { IUserDocument } from '@user/interfaces/user.interface';
-import { userQueue } from '@services/queues/user.queue';
+
+import { config } from '@root/config';
 
 const userCache: UserCache = new UserCache();
 
@@ -56,7 +59,11 @@ class Signup {
     authQueue.addAuthUserJob(ADD_AUTH_USER_TO_DB, { value: omitteduserData });
     userQueue.addUserJob(ADD_USER_TO_DB, { value: omitteduserData });
 
-    res.status(HTTP_STATUS.CREATED).json({ message: 'User created succesfully', authData });
+    // JWT Token
+    const userJWT: string = Signup.prototype.signupToken(authData, userId);
+    req.session = { jwt: userJWT };
+
+    res.status(HTTP_STATUS.CREATED).json({ message: 'User created succesfully', user: userDataForCache, token: userJWT });
   }
 
   private signupData(data: ISignUpData): IAuthDocument {
@@ -107,6 +114,13 @@ class Signup {
         youtube: ''
       }
     } as unknown as IUserDocument;
+  }
+
+  private signupToken(data: IAuthDocument, userId: ObjectId): string {
+    return JWT.sign(
+      { userId, uId: data.uId, email: data.email, username: data.username, avatarColor: data.avatarColor },
+      config.JWT_TOKEN!
+    );
   }
 }
 
