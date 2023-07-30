@@ -1,7 +1,6 @@
 import { IUserDocument } from '@user/interfaces/user.interface';
 import { BaseCache } from './base.cache';
 import { ServiceError } from '@global/helpers/error-handler';
-import { redisConnection } from './redis.connection';
 
 class UserCache extends BaseCache {
   constructor() {
