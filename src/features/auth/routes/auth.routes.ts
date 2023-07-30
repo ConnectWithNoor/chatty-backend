@@ -1,17 +1,19 @@
+import { Signin } from '@auth/controllers/signin.controller';
 import { Signup } from '@auth/controllers/signup.controller';
 import { Router } from 'express';
 
 class AuthRoutes {
   private router: Router;
-  private signupController: Signup;
+  signinService: Signin;
 
   constructor() {
     this.router = Router();
-    this.signupController = new Signup();
+    this.signinService = new Signin();
   }
 
   public routes(): Router {
-    this.router.post('/signup', this.signupController.create);
+    this.router.post('/signup', Signup.prototype.create);
+    this.router.post('/signin', this.signinService.read);
 
     return this.router;
   }

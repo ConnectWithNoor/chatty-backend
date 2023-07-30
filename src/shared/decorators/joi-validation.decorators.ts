@@ -11,11 +11,12 @@ export function JoiValidation<T>(validationSchema: ObjectSchema): IJoiDecorator<
 
     descriptor.value = async function (...args: [Request, Response, NextFunction]) {
       const req: Request = args[0];
+      const next: NextFunction = args[2];
 
       const { error } = await Promise.resolve(validationSchema.validate(req.body));
 
       if (error?.details) {
-        throw new JoiRequestValidationError(error.details[0].message);
+        return next(new JoiRequestValidationError(error.details[0].message));
       }
 
       return originalMethod.apply(this, args);
