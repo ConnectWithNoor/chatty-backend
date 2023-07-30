@@ -13,6 +13,10 @@ class AuthService {
 
     return user;
   }
+
+  public async createAuthUser(data: IAuthDocument): Promise<void> {
+    await AuthModel.create(data);
+  }
 }
 
 const authService = new AuthService();

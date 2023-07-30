@@ -12,12 +12,14 @@ import { JoiValidation } from '@decorators/joi-validation.decorators';
 import { BadRequestError } from '@global/helpers/error-handler';
 import { Helpers } from '@global/helpers/helpers';
 import { uploads } from '@global/helpers/cloudinary-uploads';
+import { ADD_AUTH_USER_TO_DB, ADD_USER_TO_DB } from '@global/constants/constants';
 
 import { authService } from '@services/db/auth.service';
 import { UserCache } from '@services/redis/user.cache';
 import { authQueue } from '@services/queues/auth.queue';
 
 import { IUserDocument } from '@user/interfaces/user.interface';
+import { userQueue } from '@services/queues/user.queue';
 
 const userCache: UserCache = new UserCache();
 
@@ -48,10 +50,11 @@ class Signup {
 
     await userCache.saveUserToCache(`${userId}`, uId, userDataForCache);
 
-    // add to auth queue to insert in database
+    // add to auth and user queue to insert in database
     // omiting the unwanted keys
     const omitteduserData = omit(userDataForCache, ['uId', 'username', 'email', 'password', 'avatarColor']);
-    authQueue.addAuthUserJob('addAuthUserToDB', { value: omitteduserData });
+    authQueue.addAuthUserJob(ADD_AUTH_USER_TO_DB, { value: omitteduserData });
+    userQueue.addUserJob(ADD_USER_TO_DB, { value: omitteduserData });
 
     res.status(HTTP_STATUS.CREATED).json({ message: 'User created succesfully', authData });
   }
