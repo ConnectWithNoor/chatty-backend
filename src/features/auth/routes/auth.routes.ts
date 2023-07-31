@@ -4,16 +4,14 @@ import { Router } from 'express';
 
 class AuthRoutes {
   private router: Router;
-  signinService: Signin;
 
   constructor() {
     this.router = Router();
-    this.signinService = new Signin();
   }
 
   public routes(): Router {
+    this.router.post('/signin', Signin.prototype.read);
     this.router.post('/signup', Signup.prototype.create);
-    this.router.post('/signin', this.signinService.read);
 
     return this.router;
   }

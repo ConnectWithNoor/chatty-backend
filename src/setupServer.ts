@@ -42,6 +42,16 @@ export class ChattyServer {
   }
 
   private securityMiddleware(app: Application): void {
+    // cookies
+    app.use(
+      cookieSession({
+        name: 'session',
+        keys: [config.SECRET_KEY_ONE!, config.SECRET_KEY_TWO!],
+        maxAge: 24 * 7 * 3600000, // 7 days
+        secure: config.NODE_ENV !== 'development' // true for prod, false for dev
+      })
+    );
+
     // hpp
     app.use(hpp());
     // helmet
@@ -58,16 +68,6 @@ export class ChattyServer {
   }
 
   private standardMiddleware(app: Application): void {
-    // cookies
-    app.use(
-      cookieSession({
-        name: 'session',
-        keys: [config.SECRET_KEY_ONE!, config.SECRET_KEY_TWO!],
-        maxAge: 24 * 7 * 3600000, // 7 days
-        secure: config.NODE_ENV !== 'development' // true for prod, false for dev
-      })
-    );
-
     // compression
     app.use(compression());
 
@@ -77,6 +77,7 @@ export class ChattyServer {
         limit: '50mb'
       })
     );
+
     // cookie-parser
     app.use(cookieParser());
     // urlencoded
@@ -109,8 +110,8 @@ export class ChattyServer {
     try {
       const server: http.Server = new http.Server(app);
       const socketServer: SocketIOServer = await this.createSocketsIO(server);
-      this.SocketIOConnections(socketServer);
       this.startHttpServer(server);
+      this.SocketIOConnections(socketServer);
     } catch (error) {
       log.error(error);
     }
@@ -120,8 +121,6 @@ export class ChattyServer {
     const io: SocketIOServer = new SocketIOServer(httpServer, {
       cors: {
         origin: config.CLIENT_URL,
-        credentials: true,
-        optionsSuccessStatus: 200,
         methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
       }
     });

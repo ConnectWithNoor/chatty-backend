@@ -3,7 +3,7 @@ import mongoose, { Schema, model } from 'mongoose';
 import { IUserDocument } from '@user/interfaces/user.interface';
 
 const userSchema = new Schema<IUserDocument>({
-  authId: { type: mongoose.SchemaTypes.ObjectId, ref: 'Auth' },
+  authId: { type: mongoose.SchemaTypes.ObjectId, ref: 'Auth', index: true },
   profilePicture: { type: mongoose.SchemaTypes.String, default: '' },
   postsCount: { type: mongoose.SchemaTypes.Number, default: 0 },
   followersCount: { type: mongoose.SchemaTypes.Number, default: 0 },
