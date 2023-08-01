@@ -1,6 +1,7 @@
 import { Router } from 'express';
 
 import { CurrentUser } from '@auth/controllers/currentUser.controller';
+import { authMiddleware } from '@global/helpers/middlewares/auth.middleware';
 
 class CurrentUserRoutes {
   private router: Router;
@@ -10,7 +11,8 @@ class CurrentUserRoutes {
   }
 
   public routes(): Router {
-    this.router.get('/currentuser', CurrentUser.prototype.read);
+    // middleware to check if the user is authenticated.
+    this.router.get('/currentuser', authMiddleware.checkAuthentication, CurrentUser.prototype.read);
 
     return this.router;
   }
