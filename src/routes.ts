@@ -8,6 +8,8 @@ export default (app: Application) => {
   const routes = () => {
     app.use(`${BULL_DASHBOARD_PATH}`, serverAdapter.getRouter());
     app.use(`${BASE_PATH}`, authRoutes.routes());
+
+    app.use(`${BASE_PATH}`, authRoutes.signoutRoute());
   };
 
   routes();
