@@ -1,14 +1,13 @@
-import { CustomError, IErrorResponse } from './shared/globals/helpers/error-handler';
 import { Application, json, urlencoded, Response, Request, NextFunction } from 'express';
-
 import http from 'http';
-import { Socket, Server as SocketIOServer } from 'socket.io';
+import { Server as SocketIOServer } from 'socket.io';
 import { createClient } from 'redis';
 import HTTP_STATUS from 'http-status-codes';
 import { createAdapter } from '@socket.io/redis-adapter';
 
-import { NotFoundError } from '@global/helpers/error-handler';
-import applicationRoutes from './routes';
+import { CustomError, IErrorResponse } from '@global/helpers/error-handler';
+
+import applicationRoutes from '@root/routes';
 
 // security
 import cors from 'cors';
@@ -18,6 +17,7 @@ import hpp from 'hpp';
 // standard
 import cookieSession from 'cookie-session';
 import compression from 'compression';
+import cookieParser from 'cookie-parser';
 
 // errorhandler
 import 'express-async-errors';
@@ -42,6 +42,16 @@ export class ChattyServer {
   }
 
   private securityMiddleware(app: Application): void {
+    // cookies
+    app.use(
+      cookieSession({
+        name: 'session',
+        keys: [config.SECRET_KEY_ONE!, config.SECRET_KEY_TWO!],
+        maxAge: 24 * 7 * 3600000, // 7 days
+        secure: config.NODE_ENV !== 'development' // true for prod, false for dev
+      })
+    );
+
     // hpp
     app.use(hpp());
     // helmet
@@ -58,16 +68,6 @@ export class ChattyServer {
   }
 
   private standardMiddleware(app: Application): void {
-    // cookies
-    app.use(
-      cookieSession({
-        name: 'session',
-        keys: [config.SECRET_KEY_ONE!, config.SECRET_KEY_TWO!],
-        maxAge: 24 * 7 * 3600000, // 7 days
-        secure: config.NODE_ENV !== 'development'
-      })
-    );
-
     // compression
     app.use(compression());
 
@@ -77,6 +77,9 @@ export class ChattyServer {
         limit: '50mb'
       })
     );
+
+    // cookie-parser
+    app.use(cookieParser());
     // urlencoded
     app.use(urlencoded({ extended: true, limit: '50mb' }));
   }
@@ -86,27 +89,29 @@ export class ChattyServer {
   }
 
   private globalErrorHandler(app: Application): void {
+    // catch error for endpoints that do not exist
     app.all('*', (req: Request, res: Response) => {
       res.status(HTTP_STATUS.NOT_FOUND).json({ message: `${req.originalUrl} not found` });
     });
 
-    app.use((error: IErrorResponse, _req: Request, res: Response, next: NextFunction): void => {
+    app.use((error: IErrorResponse, _req: Request, res: Response, next: NextFunction) => {
       log.error(error);
-
       if (error instanceof CustomError) {
         res.status(error.statusCode).json(error.serializeErrors());
       }
-
       next();
     });
   }
 
   private async startServer(app: Application): Promise<void> {
+    if (!config.JWT_TOKEN) {
+      throw new Error('JWT_TOKEN must be provided');
+    }
     try {
       const server: http.Server = new http.Server(app);
       const socketServer: SocketIOServer = await this.createSocketsIO(server);
-      this.SocketIOConnections(socketServer);
       this.startHttpServer(server);
+      this.SocketIOConnections(socketServer);
     } catch (error) {
       log.error(error);
     }
@@ -116,8 +121,6 @@ export class ChattyServer {
     const io: SocketIOServer = new SocketIOServer(httpServer, {
       cors: {
         origin: config.CLIENT_URL,
-        credentials: true,
-        optionsSuccessStatus: 200,
         methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
       }
     });
@@ -137,7 +140,9 @@ export class ChattyServer {
     });
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   private SocketIOConnections(socketServer: SocketIOServer): void {
-    log.info('Todo');
+    // todo
+    log.info('socketIOConnections');
   }
 }
